@@ -1,0 +1,31 @@
+name: demo_p180_serialport
+description: "Mapeo de las funciones de NAPI para establecer comunicación serial en PINPAD P180."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+  agnostiko:
+    version: 2.0.0
+    hosted:
+      url: https://server-agnostiko-web-gnbxyenkeq-ue.a.run.app
+      name: agnostiko
+
+  agnostiko_scripts:
+    path: ./agnostiko_scripts/
+  
+  ffi: ^2.1.0
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
