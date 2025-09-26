@@ -148,15 +148,19 @@ class SerialPort {
     _controller = StreamController<SerialPortEvent>.broadcast();
     _serialPortSettings = settings;
 
-    ///
-    /// Abrir puerto serial.
-    ///
-    _openPortInternal();
+    try {
+      ///
+      /// Abrir puerto serial.
+      ///
+      _openPortInternal();
 
-    ///
-    /// Quedar a al escucha de puerto serial.
-    ///
-    _listenSerialPort();
+      ///
+      /// Quedar a al escucha de puerto serial.
+      ///
+      _listenSerialPort();
+    } on SerialPortException catch (_) {
+      rethrow;
+    }
 
     return _controller.stream;
   }
@@ -169,7 +173,11 @@ class SerialPort {
       );
     }
 
-    _writePortInternal(data);
+    try {
+      _writePortInternal(data);
+    } on SerialPortException catch (_) {
+      rethrow;
+    }
   }
 
   void close() async {
@@ -178,7 +186,11 @@ class SerialPort {
     }
 
     _isOpen = false;
-    _closePortInternal();
+    try {
+      _closePortInternal();
+    } on SerialPortException catch (_) {
+      rethrow;
+    }
   }
 
   ///
@@ -209,9 +221,13 @@ class SerialPort {
 
   void _listenSerialPort() async {
     while (_isOpen) {
-      final bytes = await _readPortInternal();
-      if (bytes != null) {
-        _controller.add(SerialPortEvent(data: bytes));
+      try {
+        final bytes = await _readPortInternal();
+        if (bytes != null) {
+          _controller.add(SerialPortEvent(data: bytes));
+        }
+      } on SerialPortException {
+        rethrow;
       }
 
       await Future.delayed(const Duration(milliseconds: 1));

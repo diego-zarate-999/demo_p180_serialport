@@ -4,8 +4,6 @@ import 'package:demo_p180_serialport/core/serialport/serialport.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-final _serialport = SerialPort();
-
 class SerialPortCommunicationScreen extends StatefulWidget {
   const SerialPortCommunicationScreen({super.key, required this.portType});
 
@@ -18,6 +16,7 @@ class SerialPortCommunicationScreen extends StatefulWidget {
 
 class _SerialPortCommunicationScreenState
     extends State<SerialPortCommunicationScreen> {
+  late SerialPort _serialport;
   late String _status;
 
   final _focusNode = FocusNode();
@@ -39,6 +38,13 @@ class _SerialPortCommunicationScreenState
   /// Abrir puerto serial y obtener stream.
   ///
   void _openSerialPort() async {
+    try {
+      _serialport = SerialPort();
+    } on FFIException catch (_) {
+      _status = "No se encuentra el wrapper.so";
+      return;
+    }
+
     final settings = SerialportSettings(
       baudRate: BaudRateType.baud115200,
       dataBits: DataBitsType.data8,
@@ -55,10 +61,16 @@ class _SerialPortCommunicationScreenState
       return;
     }
 
-    await for (final event in _streamSerial) {
-      final bytes = event.data;
+    try {
+      await for (final event in _streamSerial) {
+        final bytes = event.data;
+        setState(() {
+          _status = "Recibido: ${bytes.toString()}";
+        });
+      }
+    } on SerialPortException catch (e) {
       setState(() {
-        _status = "Recibido: ${bytes.toString()}";
+        _status = "Error al escuhar puerto serial (${e.errorCode})";
       });
     }
   }
@@ -99,7 +111,6 @@ class _SerialPortCommunicationScreenState
   @override
   void initState() {
     super.initState();
-
     _openSerialPort();
   }
 

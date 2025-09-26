@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:demo_p180_serialport/core/serialport/ffi/utils/exception.dart';
 import 'package:demo_p180_serialport/core/serialport/ffi/utils/typedef.dart';
 
 sealed class PortSettingsFFI extends Struct {
@@ -51,7 +52,11 @@ class SerialportFFINapi implements SerialportFFI {
   late final PortClose _closePort;
 
   SerialportFFINapi() {
-    initNativeLibrary();
+    try {
+      initNativeLibrary();
+    } catch (error) {
+      throw FFIException(message: error.toString(), errorCode: -1);
+    }
   }
 
   @override
